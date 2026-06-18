@@ -1,507 +1,650 @@
-# Harness 项目与规划书对应分析
+# Harness SDK：从技术基础设施到银行智能体生态的演进路径
 
-## 一、总体定位
+## 摘要
 
-**规划书核心命题：**
-> "底层集约建设、上层乐高组装、技术硬核控险、业务三步演进"
+本文档从**前瞻视角**分析 Harness SDK 如何支撑《银行大模型本地化落地与AI转型全景规划书》的核心愿景——用 AI 代理（Agent）重构银行业务流程。我们不讨论模块对应关系，而是聚焦于：
 
-**Harness 项目定位：**
-Harness SDK 是规划书中"统一AI能力接入网关"的**技术实现原型**，提供了：
-- Agent 执行引擎（底层集约建设）
-- MCP 工具包装机制（乐高组装）
-- Guardrails 安全护栏（技术硬核控险）
-- 客户端界面（业务落地载体）
+1. **AI 代理如何成为"数字员工"**：借鉴 OpenAI Swarm 的多智能体编排理念，分析 Harness SDK 如何支撑银行各类业务场景的 Agent 实现
+2. **技能驱动的工作流自动化**：从 scraper 经验出发，阐述"AI + 技能 = 可复用业务能力"的设计模式
+3. **多智能体协同的技术路径**：通过 SDK-JAVA + Spring Cloud，分析 L4/L5 阶段的多智能体编排架构
 
 ---
 
-## 二、模块与规划书章节对应
+## 一、规划书的核心愿景：业务流程重构
 
-### 2.1 统一AI能力接入网关 → SDK 核心模块
+### 1.1 从"工具"到"数字员工"的范式跃迁
 
-| 规划书章节 | Harness 模块 | 实现状态 |
-|-----------|--------------|---------|
-| **隐私数据动态脱敏机制** | `guardrails/` | ✓ 已实现 |
-| **IAM权限强制继承机制** | `tools/permissions.py` | ◐ 基础框架 |
-| **输入/输出双向实时过滤护栏** | `guardrails/judge.py`, `stream_interceptor.py` | ✓ 已实现 |
-| **智能路由引擎** | `core/agent_loop.py` | ✓ 已实现 |
-| **知识库存储** | `memory/vector_store.py` | ✓ 已实现 |
+规划书五阶成熟度模型的核心演进逻辑：
 
-### 2.2 详细对应分析
+```
+L1 → L2 → L3 → L4 → L5
+│     │     │     │     │
+│     │     │     │     └── 生态组织者：跨机构协同
+│     │     │     └──────── 业务驱动者：主动创造价值
+│     │     └────────────── 流程协作者：嵌入核心流程
+│     └──────────────────── 专业助手：场景化赋能
+└────────────────────────── 被动工具：单点实验
+```
 
-#### （1）隐私数据动态脱敏机制 → Guardrails 模块
+**关键跃迁点**：
+- **L2 → L3**：从"外挂工具"到"流程嵌入"，Agent 开始参与核心业务流程
+- **L4 → L5**：从"单智能体"到"多智能体协同"，业务运转模式彻底重构
 
-**规划书原文：**
-> "网关处的'隐私脱敏模块'会自动利用轻量级金融命名实体识别（NER）技术，识别并遮掩客户身份证、手机号、账户等敏感隐私信息（PII）。"
+### 1.2 规划书的三大业务领域 Agent 需求
 
-**Harness 实现：**
+| 业务领域 | Agent 角色 | 核心能力要求 |
+|---------|-----------|-------------|
+| **Run（运营）** | 研发助手、制度百事通 | 代码生成、知识检索、问答 |
+| **Protect（风控）** | 信贷尽调助理、支付路由 | 数据提取、推理判断、决策辅助 |
+| **Grow（增长）** | 财资管理、财富领航 | 预测分析、主动触达、协同工作流 |
+
+**关键洞察**：规划书反复强调"最后 1% 必须人工卡死"，这正是 Agent 可控性设计的核心——AI 推进流程到 99%，人类完成最终审批。
+
+---
+
+## 二、Harness SDK：银行智能体的技术底座
+
+### 2.1 AI Agent 的本质架构
+
+根据 OpenAI Swarm 的设计理念，一个 AI Agent 包含三个核心要素：
 
 ```python
-# harness/guardrails/chinese_pii_recognizers.py
-class ChinaMobilePhoneRecognizer     # 中国手机号识别器
-class ChinaIDCardRecognizer          # 中国身份证识别器  
-class ChinaBankCardRecognizer        # 中国银行卡识别器
-class ChinaPassportRecognizer        # 中国护照识别器
-class ChinaSocialCreditCodeRecognizer # 企业社会信用代码识别器
-class ChinaLicensePlateRecognizer    # 中国车牌识别器
-class HongKongPhoneRecognizer        # 香港手机号识别器
-class HongKongIDCardRecognizer       # 香港身份证识别器
-class ChineseNameRecognizer          # 中文姓名识别器（姓氏库）
+Agent = {
+    "instructions": "系统指令（角色定位）",
+    "tools": [可调用的工具列表],
+    "handoffs": [可转交的其他Agent]
+}
 ```
 
-**架构设计：**
+Harness SDK 提供了完整的 Agent 实现能力：
 
 ```
-规划书脱敏流程:
-用户输入 → [NER识别层] → [敏感词匹配] → [脱敏处理] → 模型
+┌─────────────────────────────────────────────────────────────────┐
+│                        Harness Agent                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  系统指令        │  │  工具集          │  │  状态管理        │ │
+│  │                 │  │                 │  │                 │ │
+│  │  system_prompt  │  │  tools: []      │  │  session        │ │
+│  │  + skill.md     │  │  + MCP tools    │  │  + memory       │ │
+│  │                 │  │                 │  │                 │ │
+│  │  (角色定位)      │  │  (可执行能力)    │  │  (上下文延续)    │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                    AgentLoop (ReAct)                        ││
+│  │                                                             ││
+│  │  while not done:                                            ││
+│  │      context = build_context(session)                       ││
+│  │      response = llm.call(context, tools)                    ││
+│  │      if response.needs_tools:                               ││
+│  │          results = execute_tools(response.tool_calls)       ││
+│  │          session.add(results)                               ││
+│  │      else:                                                  ││
+│  │          return response                                    ││
+│  └─────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+```
 
-Harness 实现:
+### 2.2 SDK-JAVA 的企业级优势
+
+对于银行环境，SDK-JAVA 版本具有关键意义：
+
+| 能力 | Python SDK | Java SDK + Spring Cloud |
+|------|-----------|------------------------|
+| **部署形态** | 脚本/服务 | 微服务集群 |
+| **编排能力** | 单进程 | 分布式编排 |
+| **状态管理** | 内存/文件 | 持久化 + Redis |
+| **多Agent协同** | 需自建 | Spring Cloud 原生支持 |
+| **生产可靠性** | 中等 | 企业级 |
+
+**SDK-JAVA 的 AgentLoop 核心**：
+
+```java
+// AgentLoop.java - ReAct 执行引擎
+public class AgentLoop {
+    private final LLMClient llmClient;
+    private final ToolExecutor toolExecutor;
+    private final LoopConfig config;
+
+    public LoopResult run(String prompt, Session session) {
+        while (iteration < maxIterations) {
+            // 1. 构建上下文
+            Context context = contextBuilder.build(session);
+
+            // 2. 调用 LLM
+            LLMResponse response = llmClient.call(context, tools);
+
+            // 3. 执行工具（如有需要）
+            if (response.isToolUse()) {
+                List<ToolResult> results = executeTools(response.toolCalls());
+                session.addMessages(results);
+                continue;
+            }
+
+            // 4. 完成
+            return LoopResult.completed(response.content());
+        }
+    }
+}
+```
+
+---
+
+## 三、技能驱动：从 Scraper 到银行业务的通用模式
+
+### 3.1 Scraper 的关键经验：AI + 技能 = 可复用业务能力
+
+Scraper 的 IntelAgent 设计揭示了 Agent 架构的黄金法则：
+
+**核心洞察**：
+> 系统提示词（BASE_SYSTEM_PROMPT）极简，**技能文件（skill.md）驱动一切**。
+
+```python
+# agent.py
+class IntelAgent:
+    def __init__(self, config, skill: str | None = None):
+        # 1. 极简的系统提示词
+        system_prompt = BASE_SYSTEM_PROMPT  # 仅定义角色
+
+        # 2. 从技能文件加载领域知识
+        if skill:
+            skill = Skill.from_file(f"{skill}.md")
+            system_prompt += f"\n\n{skill.content}"
+
+        # 3. 工具由技能文件的 tools.allowed 决定
+        tools = get_tools_by_names(skill.tools.allowed)
+
+        # 4. 创建 Agent
+        self._agent = AgentHarness(
+            system_prompt=system_prompt,
+            tools=tools,
+            ...
+        )
+```
+
+**技能文件（ai-intelligence.md）的结构**：
+
+```markdown
+---
+name: ai-intelligence
+tools:
+  allowed:
+    - fetch_rss
+    - fetch_hn
+    - save_one_pager
+---
+
+# AI 情报提取技能
+
+## 领域聚焦
+AI/ML 行业：模型、框架、工具...
+
+## 判断标准
+必须同时满足至少 2 点：
+- 概念创新：引入新术语/框架
+- 采用广度：被 2+ 项目采用
+- ...
+
+## 工作流程
+1. 信息收集 → 2. 初筛 → 3. 深度评估 → 4. 记录
+```
+
+### 3.2 技能驱动模式的银行应用
+
+将 Scraper 的经验推广到银行业务场景：
+
+| 场景 | 技能文件 | 工具集 | 领域知识 |
+|------|---------|-------|---------|
+| **信贷尽调** | `credit-due-diligence.md` | 数据查询、报告生成 | 尽调标准、风险指标 |
+| **客服问答** | `customer-service.md` | 知识检索、工单创建 | 产品知识、话术规范 |
+| **财富管理** | `wealth-advisory.md` | 市场数据、客户画像 | 投资策略、合规要求 |
+| **支付路由** | `payment-routing.md` | 通道查询、决策执行 | 路由规则、成本计算 |
+
+**示例：信贷尽调技能文件**
+
+```markdown
+---
+name: credit-due-diligence
+tools:
+  allowed:
+    - query_data_platform      # 查询数据中台
+    - fetch_company_info       # 获取工商信息
+    - generate_report          # 生成报告初稿
+    - read_regulation          # 查阅制度规范
+---
+
+# 信贷尽调技能
+
+## 角色定位
+你是一个信贷尽调助理，负责将尽调报告推进到 99%，
+最后 1% 的审批必须由信贷合规官完成。
+
+## 核心能力
+1. 自动从数据中台提取企业财务数据
+2. 按照标准模板组装尽调报告初稿
+3. 标注风险点供人工复核
+
+## 权限边界
+- ✅ 只读：查询数据、生成初稿
+- ❌ 禁止：提交审批、修改系统数据
+
+## 工作流程
+1. 接收企业名称 → 2. 查询多源数据 → 3. 结构化整理
+→ 4. 生成报告初稿 → 5. 标注待复核点 → 6. 提交人工
+
+## 输出标准
+报告必须包含：企业概况、财务分析、风险提示、建议结论
+每个结论必须标注：数据来源、计算逻辑、置信度
+```
+
+### 3.3 技能注册与复用机制
+
+SDK-JAVA 的 SkillRegistry 提供了技能管理能力：
+
+```java
+// SkillRegistry.java
+public class SkillRegistry {
+    private final Map<String, Skill> skills = new ConcurrentHashMap<>();
+
+    public void register(Skill skill) {
+        skills.put(skill.name(), skill);
+    }
+
+    public Skill get(String name) {
+        return skills.get(name);
+    }
+
+    public List<Skill> listAll() {
+        return new ArrayList<>(skills.values());
+    }
+}
+```
+
+**银行业务场景的技能货架**：
+
+```
+skills/
+├── credit/
+│   ├── due-diligence.md      # 尽调助理
+│   ├── risk-assessment.md    # 风险评估
+│   └── approval-routing.md   # 审批路由
+├── service/
+│   ├── customer-qa.md        # 客服问答
+│   ├── complaint-handling.md # 投诉处理
+│   └── product-recommend.md  # 产品推荐
+├── wealth/
+│   ├── portfolio-analysis.md # 投资组合分析
+│   ├── market-monitor.md     # 市场监控
+│   └── client-advisory.md    # 客户建议
+└── ops/
+    ├── payment-routing.md    # 支付路由
+    ├── cash-forecast.md      # 现金流预测
+    └── liquidity-mgmt.md     # 流动性管理
+```
+
+---
+
+## 四、多智能体协同：通往 L4/L5 的技术路径
+
+### 4.1 OpenAI Swarm 的编排理念
+
+OpenAI Swarm 的核心设计：
+
+```
 ┌─────────────────────────────────────────────────────────────┐
-│                     GuardrailHook                            │
-│                                                              │
-│  Layer 1 (PII 规则检测):                                     │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │ UniversalPIIGuardrail                                │   │
-│  │ ├── ChinaMobilePhoneRecognizer  → [PHONE_XXXX]      │   │
-│  │ ├── ChinaIDCardRecognizer       → [ID_XXXX]         │   │
-│  │ ├── ChinaBankCardRecognizer     → [CARD_XXXX]       │   │
-│  │ ├── ChineseNameRecognizer       → [NAME_XXXX]       │   │
-│  │ └── ...                                              │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                              │
-│  Layer 2 (LLM Judge 语义检测):                               │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │ ComplianceJudge                                      │   │
-│  │ ├── RiskLevel.LOW      → 放行                        │   │
-│  │ ├── RiskLevel.MEDIUM   → 标记，人工审核              │   │
-│  │ ├── RiskLevel.HIGH     → 拦截                        │   │
-│  └─────────────────────────────────────────────────────┘   │
+│                     Orchestrator                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Agent A ──────┐                                           │
+│  (Triage)      │                                           │
+│                ├───→ Agent B ────→ Agent D                  │
+│                │     (Refunds)    (Complete)                 │
+│                │                                           │
+│                └───→ Agent C ────→ Agent D                  │
+│                      (Sales)      (Complete)                 │
+│                                                             │
+│  Handoff: Agent 可以将任务转交给其他 Agent                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**关键代码：**
+**关键机制**：
+- **Routine**：定义 Agent 的标准工作流
+- **Handoff**：Agent 间任务转交（通过工具函数实现）
+- **Stateless**：每个 Agent 无状态，状态由 Orchestrator 管理
 
-```python
-# 使用示例
-from harness.guardrails import GuardrailConfig, GuardrailHook
+### 4.2 SDK-JAVA + Spring Cloud 的多智能体架构
 
-agent = AgentHarness(
-    model="claude-sonnet-4-6",
-    guardrails=GuardrailConfig(
-        enabled=True,
-        layer1_enabled=True,   # PII 规则检测（<1ms）
-        layer2_enabled=True,   # LLM Judge 语义检测（约100ms）
-        judge_endpoint="http://localhost:8001/v1/chat/completions",
-    ),
-)
+规划书 L4/L5 阶段需要多智能体协同，SDK-JAVA 通过 Spring Cloud 提供：
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Spring Cloud Orchestration Layer                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                   │
+│  │ Gateway     │   │ Eureka      │   │ Config      │                   │
+│  │ (路由)       │   │ (服务发现)   │   │ (配置中心)   │                   │
+│  └─────────────┘   └─────────────┘   └─────────────┘                   │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                   │
+│  │ Agent-A     │   │ Agent-B     │   │ Agent-C     │                   │
+│  │ Service     │   │ Service     │   │ Service     │                   │
+│  │             │   │             │   │             │                   │
+│  │ @Service    │   │ @Service    │   │ @Service    │                   │
+│  │ AgentLoop   │   │ AgentLoop   │   │ AgentLoop   │                   │
+│  │ Skill: X    │   │ Skill: Y    │   │ Skill: Z    │                   │
+│  └─────────────┘   └─────────────┘   └─────────────┘                   │
+│         │                 │                 │                          │
+│         └─────────────────┼─────────────────┘                          │
+│                           │                                            │
+│                           ▼                                            │
+│                    ┌─────────────┐                                    │
+│                    │ Redis        │                                    │
+│                    │ (共享状态)    │                                    │
+│                    └─────────────┘                                    │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### （2）输入/输出双向实时过滤护栏 → StreamInterceptor
+**代码示例：基于 Spring Cloud 的多 Agent 协同**
 
-**规划书原文：**
-> "输入端：实时拦截所有恶意推翻模型系统设定、试图套取银行内部网络机密的异常提示词攻击。"
-> "输出端：内置金融专业黑白名单与合规规则库。一旦监测到模型生成的文本存在'胡言乱语'或捏造我行不存在的理财条款，在网关层直接拦截并报错。"
+```java
+@Service
+public class WealthOrchestrator {
 
-**Harness 实现：**
+    @Autowired
+    private AgentService marketMonitorAgent;
 
-```python
-# harness/guardrails/stream_interceptor.py
-class StreamInterceptor:
-    """
-    流式输出拦截器 - 实时检测输出中的风险内容
-    
-    支持：
-    - 实时流式拦截（不等输出完成）
-    - PII 二次检测（防止模型输出敏感信息）
-    - 黑名单关键词检测
-    - 置信度阈值判断
-    """
+    @Autowired
+    private AgentService clientAdvisorAgent;
+
+    @Autowired
+    private AgentService notificationAgent;
+
+    @Autowired
+    private RedisTemplate<String, Session> sessionStore;
+
+    public WorkflowResult executeMarketAlert(String event) {
+        // 1. 市场 Agent 检测异动
+        LoopResult analysis = marketMonitorAgent.run(
+            "分析市场异动：" + event
+        );
+
+        // 2. 决策 Agent 筛选客户
+        LoopResult clients = clientAdvisorAgent.run(
+            "筛选受影响的客户：" + analysis.content()
+        );
+
+        // 3. 通知 Agent 生成建议
+        LoopResult notification = notificationAgent.run(
+            "为以下客户生成通知：" + clients.content()
+        );
+
+        return WorkflowResult.completed(notification);
+    }
+}
 ```
 
-```python
-# harness/guardrails/judge.py
-class ComplianceJudge:
-    """
-    LLM Judge - 语义层面的风险评估
-    
-    检测：
-    - Prompt 注入攻击意图
-    - 越权访问意图
-    - 违规金融建议
-    - 敏感信息泄露风险
-    """
-    
-    class RiskLevel:
-        LOW = "low"       # 无风险，放行
-        MEDIUM = "medium" # 中风险，需人工审核
-        HIGH = "high"     # 高风险，拦截
-        CRITICAL = "critical"  # 极高风险，立即阻断
-```
+### 4.3 规划书场景的多智能体实现
 
-#### （3）能力服务层 → SDK API 封装
+#### 场景：财富管理"投研雷达 + 客户经理领航系统"
 
-**规划书原文：**
-> "将全行本地算力调度、底层开源大模型能力统一封装为标准的内部接口（API）。"
+规划书原文：
+> "构建两层交织的智能化财富管理多智能体网络：
+> 底层为'本地投研雷达'：全天候连续吞噬宏观新闻...
+> 上层为'工作流协同领航层'：一旦雷达检测到某项市场异动..."
 
-**Harness 实现：**
+**Harness 实现**：
 
-```python
-# harness/sdk/harness.py
-class AgentHarness:
-    """
-    主入口 - 统一的 Agent API
-    
-    支持：
-    - 多模型接入（Anthropic, OpenAI, 自定义）
-    - 工具注册与管理
-    - 会话与记忆管理
-    - 成本控制
-    - 进度追踪
-    """
-    
-    def __init__(
-        self,
-        model: str = "claude-sonnet-4-6",
-        provider: str = "anthropic",  # 或 "openai"
-        tools: list[Tool] | None = None,
-        mcp_servers: dict[str, str] | None = None,  # MCP 集成
-        guardrails: GuardrailConfig | None = None,  # 安全护栏
-        ...
-    ):
-        ...
-    
-    async def run(self, prompt: str) -> LoopResult:
-        """执行 Agent 任务，返回结果"""
-```
+```java
+// 1. 投研雷达 Agent
+@Service
+public class MarketRadarAgent {
 
-**多 Provider 支持：**
+    private final AgentLoop loop;
 
-```python
-# harness/llm/
-anthropic.py   # Anthropic Claude API
-openai.py      # OpenAI API（兼容第三方）
-base.py        # LLMClient 接口（可扩展）
-```
+    @Scheduled(fixedRate = 60000)  // 每分钟轮询
+    public void scan() {
+        LoopResult result = loop.run("""
+            分析最新市场动态：
+            1. 检查重大新闻
+            2. 计算对各标的的影响
+            3. 识别风险阈值突破
+            """);
 
-#### （4）乐高组装 → MCP Tool Wrapper
+        if (result.hasAlerts()) {
+            eventPublisher.publish(new MarketAlertEvent(result));
+        }
+    }
+}
 
-**规划书原文：**
-> "业务部门提单时，传统IT团队无需编写复杂的算法底层代码，直接调用标准接口即可像'搭积木'一样快速组装业务应用。"
+// 2. 客户筛选 Agent
+@Service
+public class ClientFilterAgent {
 
-**Harness 实现：**
+    @EventListener
+    public void onMarketAlert(MarketAlertEvent event) {
+        LoopResult result = loop.run("""
+            筛选受影响的客户：
+            1. 从 CRM 查询持仓
+            2. 匹配风险偏好
+            3. 排序紧急程度
+            """);
 
-```python
-# harness/mcp/tool_wrapper.py
-class MCPToolWrapper:
-    """
-    MCP 工具包装器 - 将 MCP 工具转化为 Harness Tool
-    
-    实现：
-    - MCP 工具自动注册为 Harness Tool
-    - 工具名前缀 `mcp_{server}_{tool}` 避免冲突
-    - JSON Schema 参数验证
-    - 超时控制
-    """
-    
-    @property
-    def name(self) -> str:
-        return f"mcp_{self._server_name}_{self._original_name}"
-    
-    async def execute(self, args: dict, ctx: ToolContext) -> ToolResult:
-        """执行 MCP 工具调用"""
-```
+        // 触发通知 Agent
+        notificationAgent.generateNotifications(result);
+    }
+}
 
-**使用示例：**
+// 3. 通知生成 Agent
+@Service
+public class NotificationAgent {
 
-```python
-# 连接内部知识库 MCP 服务
-agent = AgentHarness(
-    model="claude-sonnet-4-6",
-    mcp_servers={
-        "internal-docs": "http://10.x.x.x:8500/sse",  # Context7 MCP
-    },
-)
+    public void generateNotifications(LoopResult clients) {
+        for (Client client : clients.getClients()) {
+            LoopResult notification = loop.run("""
+                为 %s 生成调仓建议：
+                1. 分析当前持仓风险
+                2. 生成个性化建议信
+                3. 确保合规措辞
+                """.formatted(client.getName()));
 
-# MCP 工具自动注册为：
-# - mcp_internal_docs_search_tech_manual
-# - mcp_internal_docs_get_manual_chapter
-```
-
-#### （5）调度路由层 → Agent Loop
-
-**规划书原文：**
-> "智能路由引擎：按任务复杂度分发至不同规模模型"
-
-**Harness 实现：**
-
-```python
-# harness/core/agent_loop.py
-class AgentLoop:
-    """
-    ReAct 执行引擎 - Agent 的核心执行循环
-    
-    功能：
-    - 工具调用编排
-    - 并行工具执行支持
-    - 循环检测与熔断
-    - 成本控制
-    - 错误处理与重试
-    """
-```
-
-```python
-# harness/core/circuit_breaker.py
-class CircuitBreaker:
-    """
-    熔断器 - 防止工具循环卡死
-    
-    检测：
-    - 同一工具连续调用超过阈值
-    - 同一工具+参数组合重复调用
-    """
+            // 推送到理财顾问工作台
+            advisorPortal.push(client.getAdvisorId(), notification);
+        }
+    }
+}
 ```
 
 ---
 
-## 三、规划书场景与 Harness 能力对应
+## 五、安全护栏：支撑"技术硬核控险"的基石
 
-### 3.1 Run 领域（L1/L2阶段）
+### 5.1 规划书的安全要求
 
-#### 场景 A：研发智能助手
+> "在网关层硬编码设立'输入动态脱敏、输出实时过滤'的双向技术防火墙"
 
-**规划书需求：**
-> "智能助手自动扫描历史代码、自动生成重构建议、并自动输出标准的单元测试用例。"
+Harness SDK 的 Guardrails 模块正是这一要求的技术实现：
 
-**Harness 能力支撑：**
-
-| 能力 | Harness 模块 | 说明 |
-|------|--------------|------|
-| 代码扫描 | `tools/builtins.py` → GlobTool, GrepTool | 文件搜索、代码搜索 |
-| 代码读取 | `tools/builtins.py` → ReadTool | 读取文件内容 |
-| 代码编辑 | `tools/builtins.py` → EditTool, WriteTool | 编辑、创建文件 |
-| 命令执行 | `tools/builtins.py` → BashTool | 执行测试、构建命令 |
-| 重构建议 | Agent Loop + LLM | AI 分析代码并生成建议 |
-
-**示例：**
-
-```python
-from harness import AgentHarness
-from harness.tools.builtins import ReadTool, EditTool, GlobTool, GrepTool, BashTool
-
-agent = AgentHarness(
-    model="claude-sonnet-4-6",
-    tools=[ReadTool(), EditTool(), GlobTool(), GrepTool(), BashTool()],
-)
-
-result = await agent.run("""
-请分析 src/legacy 目录下的老旧代码，给出重构建议：
-1. 扫描所有 Python 文件
-2. 分析代码结构和依赖关系
-3. 输出重构建议和单元测试用例
-""")
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Guardrail Pipeline                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  输入端:                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │ PII 检测    │ →  │ 注入检测    │ →  │ 权限检查    │     │
+│  │ (规则)      │    │ (LLM Judge) │    │ (IAM继承)   │     │
+│  └─────────────┘    └─────────────┘    └─────────────┘     │
+│         ↓                  ↓                  ↓             │
+│     [PHONE_XXX]        [RiskLevel]        [Allowed?]        │
+│                                                             │
+│  输出端:                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │ 幻觉检测    │ →  │ 合规过滤    │ →  │ 引用溯源    │     │
+│  │ (置信度)    │    │ (黑名单)    │    │ (来源验证)   │     │
+│  └─────────────┘    └─────────────┘    └─────────────┘     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-#### 场景 B：制度百事通
+### 5.2 Guardrails 在 Agent 流程中的位置
 
-**规划书需求：**
-> "构建'制度百事通'矢量知识库"
+```java
+// SDK-JAVA 的 AgentLoop 集成 Guardrails
+public LoopResult executeLoop(String prompt, Session session) {
+    // 1. 输入端护栏
+    GuardrailResult inputCheck = guardrails.checkInput(prompt);
+    if (inputCheck.isBlocked()) {
+        return LoopResult.blocked("输入被拦截：" + inputCheck.reason());
+    }
 
-**Harness 能力支撑：**
+    // 2. 脱敏处理
+    String sanitized = guardrails.sanitize(prompt);
 
-| 能力 | Harness 模块 | 说明 |
-|------|--------------|------|
-| 知识库存储 | `memory/vector_store.py` | 向量存储抽象 |
-| 会话管理 | `memory/session.py` | 多轮对话状态 |
-| 上下文构建 | `memory/context_builder.py` | 消息窗口管理 |
-| MCP 集成 | `mcp/client.py`, `mcp/tool_wrapper.py` | 连接外部知识库 |
+    // 3. 正常执行
+    LLMResponse response = llmClient.call(sanitized);
 
-**结合 Context7：**
+    // 4. 输出端护栏
+    GuardrailResult outputCheck = guardrails.checkOutput(response.content());
+    if (outputCheck.isBlocked()) {
+        return LoopResult.blocked("输出被拦截：" + outputCheck.reason());
+    }
 
-```python
-# Context7 提供 MCP 知识库服务
-agent = AgentHarness(
-    model="claude-sonnet-4-6",
-    mcp_servers={
-        "internal-docs": "http://10.x.x.x:8500/sse",
-    },
-)
-
-# Agent 自动调用 MCP 工具查询制度
-result = await agent.run("查询行内关于贷款审批的制度规定")
-```
-
-### 3.2 Protect 领域（L3阶段）
-
-#### 场景 A：信贷尽调合稿
-
-**规划书需求：**
-> "智能工具仅拥有只读权限，负责将合稿工作流推进到 99%。最后 1% 的审批修改与系统写权限，必须卡死在人工信贷合规官手里。"
-
-**Harness 能力支撑：**
-
-| 能力 | Harness 模块 | 说明 |
-|------|--------------|------|
-| 权限控制 | `security/sandbox.py` | 命令执行权限限制 |
-| 只读工具 | 自定义 Tool | 只暴露 ReadTool, GlobTool |
-| 写入限制 | `security/validation.py` | 输入验证 |
-
-**示例：**
-
-```python
-from harness.security.sandbox import LightweightSandboxConfig
-
-# 只读模式 Agent
-agent = AgentHarness(
-    model="claude-sonnet-4-6",
-    tools=[ReadTool(), GlobTool(), GrepTool()],  # 只暴露读取工具
-    security_config=LightweightSandboxConfig(
-        allowed_commands={"cat", "ls", "grep"},  # 只允许安全命令
-    ),
-)
+    return LoopResult.completed(response.content());
+}
 ```
 
 ---
 
-## 四、技术架构对应图
+## 六、演进路径：从 L1 到 L5 的技术支撑
 
-### 4.1 规划书架构 vs Harness 实现
+### 6.1 各阶段的 Harness 能力需求
+
+| 阶段 | 业务形态 | Harness 支撑能力 | SDK 需求 |
+|------|---------|-----------------|---------|
+| **L1** | 单点实验 | AgentHarness + 单工具 | Python SDK |
+| **L2** | 场景应用 | Skill 驱动 + MCP 集成 | Python SDK |
+| **L3** | 流程重构 | 多 Agent + Guardrails | SDK-JAVA |
+| **L4** | 业务整合 | 多智能体编排 + Spring Cloud | SDK-JAVA + 微服务 |
+| **L5** | 生态协同 | 分布式 Agent 网络 + 自优化 | 全栈 + 反馈学习 |
+
+### 6.2 推荐实施路径
 
 ```
-规划书架构                          Harness 实现
-┌─────────────────────────────────────────────────────────────────────┐
-│                              业务应用层                              │
-├─────────────┬─────────────┬─────────────┬─────────────┬─────────────┤
-│  研发助手   │  制度百事通  │  智能客服   │  信贷尽调   │  财富管理   │
-│             │             │             │             │             │
-│   [对应]    │   [对应]    │   [对应]    │   [对应]    │   [对应]    │
-│  Client UI  │  Client UI  │  Client UI  │  Client UI  │  Client UI  │
-│  + SDK      │  + MCP      │  + SDK      │  + SDK      │  + SDK      │
-└──────┬──────┴──────┬──────┴──────┬──────┴──────┬──────┴──────┬──────┘
-       │             │             │             │             │
-       └─────────────┴──────┬──────┴─────────────┴─────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        统一AI能力接入网关                            │
-├─────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                        安全防护层                            │   │
-│  │                                                              │   │
-│  │  规划书:            Harness:                                 │   │
-│  │  ┌─────────────┐   ┌─────────────────────────────────────┐ │   │
-│  │  │隐私脱敏模块 │   │ guardrails/chinese_pii_recognizers  │ │   │
-│  │  │ (NER识别)   │   │ guardrails/chinese_guardrail        │ │   │
-│  │  │             │   │ guardrails/stream_interceptor       │ │   │
-│  │  └─────────────┘   └─────────────────────────────────────┘ │   │
-│  │                                                              │   │
-│  │  规划书:            Harness:                                 │   │
-│  │  ┌─────────────┐   ┌─────────────────────────────────────┐ │   │
-│  │  │权限继承模块 │   │ security/sandbox                    │ │   │
-│  │  │ (IAM强制)   │   │ tools/permissions                   │ │   │
-│  │  │             │   │ (◐ 基础框架，需扩展)                │ │   │
-│  │  └─────────────┘   └─────────────────────────────────────┘ │   │
-│  │                                                              │   │
-│  │  规划书:            Harness:                                 │   │
-│  │  ┌─────────────┐   ┌─────────────────────────────────────┐ │   │
-│  │  │双向护栏模块 │   │ guardrails/judge                    │ │   │
-│  │  │ (输入/输出) │   │ guardrails/stream_interceptor       │ │   │
-│  │  │             │   │ guardrails/hook                     │ │   │
-│  │  └─────────────┘   └─────────────────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                        能力服务层                            │   │
-│  │                                                              │   │
-│  │  规划书:            Harness:                                 │   │
-│  │  ┌─────────────┐   ┌─────────────────────────────────────┐ │   │
-│  │  │文本生成API │   │ sdk/harness.py                       │ │   │
-│  │  │问答检索API │   │ memory/vector_store                  │ │   │
-│  │  │代码生成API │   │ tools/builtins                       │ │   │
-│  │  └─────────────┘   │ mcp/tool_wrapper                     │ │   │
-│  │                    └─────────────────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                        调度路由层                            │   │
-│  │                                                              │   │
-│  │  规划书:            Harness:                                 │   │
-│  │  ┌─────────────┐   ┌─────────────────────────────────────┐ │   │
-│  │  │智能路由引擎 │   │ core/agent_loop                      │ │   │
-│  │  │             │   │ core/circuit_breaker                 │ │   │
-│  │  │             │   │ core/stuck_detector                  │ │   │
-│  │  │             │   │ core/step_budget                     │ │   │
-│  │  └─────────────┘   └─────────────────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                          模型推理层                                  │
-├─────────────────────────────────────────────────────────────────────┤
-│  规划书:              Harness:                                      │
-│  ┌───────────────┐   ┌───────────────────────────────────────────┐ │
-│  │轻量模型(7B-14B)│   │ llm/openai.py (兼容第三方API)            │ │
-│  │中等模型(32B)  │   │ llm/anthropic.py                        │ │
-│  │大模型(70B+)   │   │ llm/base.py (自定义LLMClient接口)       │ │
-│  │多模态(VL)     │   │                                          │ │
-│  └───────────────┘   └───────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        基础设施层                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│  规划书:              Harness:                                      │
-│  ┌─────────────┐    ┌───────────────────────────────────────────┐  │
-│  │GPU算力池    │    │ core/cost_controller (成本追踪)           │  │
-│  │知识库存储   │    │ memory/vector_store                       │  │
-│  │日志审计     │    │ core/observability (可观测性)             │  │
-│  │监控告警     │    │ service/tracing, service/metrics          │  │
-│  └─────────────┘    └───────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
+Phase 1 (L1-L2): 研发赋能
+├── 使用 Python SDK 构建研发助手
+├── 验证 Skill 驱动模式
+└── 积累技能文件库
+
+Phase 2 (L2-L3): 核心业务嵌入
+├── SDK-JAVA 微服务化部署
+├── Guardrails 护栏完善
+├── 信贷/客服场景落地
+└── IAM 权限集成
+
+Phase 3 (L3-L4): 多智能体协同
+├── Spring Cloud 编排层
+├── 分布式状态管理
+├── 财富管理多 Agent 场景
+└── 人机协同工作流
+
+Phase 4 (L4-L5): 自主优化
+├── 反馈学习机制
+├── Agent 自优化
+└── 跨机构协同
 ```
 
 ---
 
-## 五、待完善功能清单
+## 七、与规划书核心命题的映射
 
-基于规划书需求，Harness 需要以下扩展：
+### 7.1 "底层集约建设" → Harness SDK
 
-### 5.1 高优先级（L3阶段必需）
+| 规划书要求 | Harness 实现 |
+|-----------|-------------|
+| 统一 AI 能力接入网关 | AgentHarness 统一入口 |
+| 标准 API 封装 | Tool 接口抽象 |
+| 本地算力调度 | LLMClient 多 Provider 支持 |
 
-| 规划书需求 | Harness 状态 | 扩展建议 |
-|-----------|--------------|----------|
-| **IAM权限强制继承** | ◐ 基础框架 | 需对接行内权限系统API，实现RAG检索权限过滤 |
-| **幻觉检测增强** | ✓ 已实现Judge | 需增加引用溯源验证、置信度评分阈值 |
-| **合规规则库** | ◐ 黑名单检测 | 需扩展金融专业合规词库（"保证收益"、"保本保息"等） |
+### 7.2 "上层乐高组装" → Skill 驱动
 
-### 5.2 中优先级（L4阶段）
+| 规划书要求 | Harness 实现 |
+|-----------|-------------|
+| 业务部门快速组装 | Skill 文件即业务能力 |
+| 无需算法底层代码 | 技能文件驱动工具选择 |
+| 几天快速交付 | 技能注册 + Agent 实例化 |
 
-| 规划书需求 | Harness 状态 | 扩展建议 |
-|-----------|--------------|----------|
-| **多模型路由** | ◐ 单模型 | 需实现按任务复杂度自动选择模型 |
-| **降级熔断机制** | ✓ 已实现CircuitBreaker | 需扩展为业务级降级策略 |
-| **高可用部署** | ◐ 单实例 | 需扩展多实例负载均衡 |
+### 7.3 "技术硬核控险" → Guardrails
 
-### 5.3 低优先级（L5阶段）
+| 规划书要求 | Harness 实现 |
+|-----------|-------------|
+| 隐私数据动态脱敏 | PII Recognizers + Sanitization |
+| 输入输出双向护栏 | GuardrailPipeline |
+| 权限强制继承 | IAM 集成（需扩展） |
 
-| 规划书需求 | Harness 状态 | 扩展建议 |
-|-----------|--------------|----------|
-| **多智能体协同** | ◐ 基础框架 | 需扩展 Multi-Agent 编排 |
-| **自主优化自愈** | 未实现 | 需设计反馈学习机制 |
+### 7.4 "业务三步演进" → L1-L5 路径
+
+| 业务阶段 | Harness 支撑 | 成熟度对应 |
+|---------|-------------|-----------|
+| Run（运营提效） | Python SDK + Skill | L1-L2 |
+| Protect（流程重构） | SDK-JAVA + Guardrails | L3 |
+| Grow（智能原生） | 多智能体 + Spring Cloud | L4-L5 |
 
 ---
 
-## 六、总结
+## 八、总结：Harness SDK 的战略价值
 
-**Harness 项目是规划书落地的关键技术基础：**
+### 8.1 技术价值
 
-1. **三大硬核控险机制**：Guardrails 模块已实现 PII 脱敏、双向护栏的完整框架
-2. **乐高组装能力**：MCP Tool Wrapper 提供标准化工具封装，支持业务快速组装
-3. **统一 API 封装**：AgentHarness 提供多模型接入、工具管理、会话管理的统一接口
-4. **生产级工程能力**：Circuit Breaker、Cost Controller、Observability 提供生产可靠性保障
+1. **Agent 实现框架**：提供 ReAct 执行引擎、工具管理、状态管理
+2. **技能驱动范式**：实现"AI + 技能 = 可复用业务能力"
+3. **安全护栏体系**：支撑"技术硬核控险"的安全承诺
+4. **企业级扩展**：SDK-JAVA + Spring Cloud 支撑多智能体协同
 
-**关键差距：**
-- IAM 权限继承需对接行内权限系统
-- 多模型智能路由需扩展
-- 金融合规词库需补充
+### 8.2 业务价值
 
-**建议：**
-基于 Harness SDK，扩展行内特定功能，形成银行专用版本，作为规划书中"统一AI能力接入网关"的生产实现。
+1. **快速组装**：技能文件定义业务能力，Agent 实例化即用
+2. **流程重构**：Agent 嵌入核心业务，推进流程到 99%
+3. **风险可控**：护栏硬编码，技术一票否决
+4. **生态演进**：从单 Agent 到多 Agent 协同的技术路径清晰
+
+### 8.3 关键差距与建议
+
+| 差距项 | 现状 | 建议扩展 |
+|-------|------|---------|
+| IAM 权限继承 | 基础框架 | 对接行内权限系统 API |
+| 多智能体编排 | 需自建 | 完善 Spring Cloud 集成模板 |
+| 反馈学习 | 未实现 | 设计 Agent 效果评估与优化机制 |
+| 金融合规词库 | 黑名单基础 | 扩展"保证收益"等金融专业合规词库 |
+
+---
+
+## 附录 A：参考资料
+
+1. **OpenAI Swarm**：轻量级多智能体编排框架
+   - 核心概念：Agent + Routine + Handoff
+   - 设计理念：无状态、可观察、简洁
+
+2. **规划书核心章节**
+   - 三大硬核控险机制
+   - L1-L5 五阶成熟度模型
+   - Run/Protect/Grow 三大业务领域
+
+3. **Harness 项目结构**
+   - `packages/sdk/`：Python SDK
+   - `packages/sdk-java/`：Java SDK
+   - `packages/scraper/`：技能驱动实践
+
+## 附录 B：关键代码索引
+
+| 模块 | 文件路径 | 核心能力 |
+|------|---------|---------|
+| Agent 执行引擎 | `sdk-java/core/AgentLoop.java` | ReAct 循环 |
+| 技能管理 | `sdk-java/skills/SkillRegistry.java` | 技能注册与查找 |
+| 工具执行 | `sdk-java/core/ToolExecutor.java` | 工具调用管理 |
+| MCP 集成 | `sdk-java/mcp/McpToolWrapper.java` | MCP 工具包装 |
+| 安全护栏 | `sdk-java/security/` | 输入验证、输出过滤 |
