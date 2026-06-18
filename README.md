@@ -139,11 +139,21 @@ context7/                      → 研发助手说明书
 3. **Harness说明书** → Client 章节 → 员工桌面部署
 4. **研发助手说明书** → Context7 → 技术团队率先验证
 
+## 项目代码仓库
+
+| 项目 | GitHub 地址 | 说明 |
+|------|------------|------|
+| **Guardrails** | https://github.com/wonglaitung/guardrails | 中文 PII 检测与脱敏护栏系统，Two-Layer Guardrail 架构 |
+| **Harness** | https://github.com/wonglaitung/harness | 银行智能体开发框架，Skill 驱动 + 多 Agent 协同 |
+| **Context7** | https://github.com/wonglaitung/context7 | MCP Server，内网技术文档检索，研发智能助手核心组件 |
+
+---
+
 ## 版本与维护
 
 | 文档 | 对应项目版本 | 更新日期 |
 |------|-------------|---------|
-| 接入网关说明书 | harness v0.1.0 | 2026-06 |
+| 接入网关说明书 | guardrail v1.0 | 2026-06 |
 | 研发助手说明书 | context7 v1.0 | 2026-06 |
 | Harness说明书 | harness v0.1.0 | 2026-06 |
 | 规划书分析文档 | - | 2026-06 |
