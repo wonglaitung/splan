@@ -196,6 +196,18 @@ context7/                      → 研发助手说明书
 | 研发助手说明书 | context7 v1.0 | 2026-06 |
 | Harness说明书 | harness v0.1.0 | 2026-07 |
 
+### 2026-06/07 新增功能
+
+| 功能 | 说明 | 提交数 |
+|------|------|--------|
+| **浏览器自动化** | 7 个 Playwright 工具，独立窗口模式，内网环境支持 | 4 |
+| **文档大小验证** | max_document_size 配置，warn/error/truncate 行为 | 1 |
+| **多模态支持** | 图片/文档上传，OpenAI 兼容格式自动转换 | 3 |
+| **Goal-Driven 执行** | GoalLoop, GoalVerifier, ParallelExecutor | 5 |
+| **渐进式技能加载** | 延迟加载，减少启动时间 | 1 |
+| **实时监控 UI** | Token 使用、迭代次数、事件日志面板 | 1 |
+| **知识图谱工具** | code-review-graph MCP 集成 | 1 |
+
 ---
 
 ## Harness 项目统计数据（Graph 分析）
