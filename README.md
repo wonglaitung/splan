@@ -194,4 +194,35 @@ context7/                      → 研发助手说明书
 | 接入网关说明书 | guardrail v1.0 | 2026-06 |
 | 智能体编排平台说明书 | Dify v1.10.1 | 2026-06 |
 | 研发助手说明书 | context7 v1.0 | 2026-06 |
-| Harness说明书 | harness v0.1.0 | 2026-06 |
+| Harness说明书 | harness v0.1.0 | 2026-07 |
+
+---
+
+## Harness 项目统计数据（Graph 分析）
+
+基于 code-review-graph 的代码结构分析：
+
+| 指标 | 数值 |
+|------|------|
+| 总节点数 | 8,368 |
+| 总边数 | 47,115 |
+| 文件数 | 588 |
+| 测试节点 | 1,263 |
+| 类 | 1,089 |
+| 函数 | 5,428 |
+| **Python/Java SDK 同步率** | **99.5%** |
+
+**主要代码社区**：
+
+| 社区 | 节点数 | 描述 |
+|------|--------|------|
+| `core-config` | 1,582 | SDK 核心配置和连接器 |
+| `core-builder` | 1,414 | 构建器模式组件 |
+| `ui-theme` | 650 | PyQt6 客户端 UI |
+| `memory-memory` | 327 | 记忆系统 |
+| `mcp-tool` | 120 | MCP 集成 |
+
+**关键执行流**：
+- `session_websocket` (criticality 0.77) — WebSocket 会话管理
+- `run` / `stream` / `run_goal` (0.71) — Agent 执行入口
+- `AgentLoop._run_impl` — ReAct 循环核心（128 连接）
