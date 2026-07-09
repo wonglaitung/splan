@@ -232,9 +232,7 @@
 | 框架 | 核心优势 | 适用场景 | 银行适配度 |
 |------|---------|---------|-----------|
 | **Harness SDK** | 企业级、技能驱动、Java支持、Guardrails内置 | 复杂业务逻辑、深度集成 | ★★★★★ |
-| **Dify** | 低代码、RAG成熟、API开放、可视化编排 | 标准化场景、快速交付 | ★★★★★ |
-| **LangChain** | 生态活跃、组件丰富、社区支持 | 原型开发、技术探索 | ★★★★☆ |
-| **CrewAI** | 多智能体协同、角色扮演 | 复杂协作场景 | ★★★☆☆ |
+| **智能体平台** | 低代码、RAG成熟、API开放、可视化编排 | 标准化场景、快速交付 | ★★★★★ |
 
 #### 4.2.2 双轨构建策略
 
@@ -243,7 +241,7 @@
 │                        智能体构建双轨策略                                │
 │                                                                         │
 │  ┌───────────────────────────────┐  ┌───────────────────────────────┐  │
-│  │ 轨道一：低代码编排（Dify）     │  │ 轨道二：代码开发（Harness SDK）│  │
+│  │ 轨道一：低代码编排（智能体平台）     │  │ 轨道二：代码开发（Harness SDK）│  │
 │  │                               │  │                               │  │
 │  │ 适用场景：                     │  │ 适用场景：                     │  │
 │  │ • 标准化知识问答              │  │ • 复杂业务逻辑                 │  │
@@ -279,35 +277,35 @@
 # AgentLoop 执行引擎核心逻辑
 class AgentLoop:
     """ReAct循环执行引擎"""
-    
+
     async def run(self, prompt, session, tools):
         iteration = 0
         while iteration < self.config.max_iterations:
             # 1. 构建上下文（系统提示词 + 会话历史 + 技能注入）
             context = self.context.build(session)
-            
+
             # 2. 调用LLM（通过Guardrails网关）
             response = await self.llm.call(
                 messages=context.messages,
                 tools=tools,
                 system=context.system_prompt
             )
-            
+
             # 3. 判断是否需要工具调用
             if response.is_tool_use:
                 # 执行工具（带超时和熔断保护）
                 results = await self._execute_tools(
-                    response.tool_calls, 
+                    response.tool_calls,
                     session,
                     timeout=self.config.timeout_per_tool
                 )
                 session.add_messages(results)
                 iteration += 1
                 continue
-            
+
             # 4. 任务完成，返回结果
             return LoopResult.completed(response.content)
-        
+
         # 达到迭代上限，返回降级结果
         return LoopResult.max_iterations_reached()
 ```
@@ -360,15 +358,15 @@ tools:
 # 工具注册与执行
 class ToolRegistry:
     """工具注册中心"""
-    
+
     def __init__(self):
         self._tools = {}
         self._mcp_tools = {}  # MCP协议工具
-    
+
     def register(self, tool: Tool):
         """注册自定义工具"""
         self._tools[tool.name] = tool
-    
+
     def register_mcp(self, mcp_server: str, tools: list):
         """注册MCP协议工具"""
         for tool in tools:
@@ -376,20 +374,20 @@ class ToolRegistry:
                 'server': mcp_server,
                 'tool': tool
             }
-    
+
     async def execute(self, tool_name: str, params: dict, session):
         """执行工具（带安全检查）"""
         # 1. 权限检查
         if not self._check_permission(tool_name, session):
             raise PermissionError(f"无权限调用工具: {tool_name}")
-        
+
         # 2. 参数验证
         validated_params = self._validate_params(tool_name, params)
-        
+
         # 3. 执行工具
         tool = self._tools.get(tool_name) or self._mcp_tools.get(tool_name)
         result = await tool.execute(validated_params)
-        
+
         # 4. 结果脱敏
         return self._sanitize_result(result)
 ```
@@ -501,7 +499,7 @@ agent_config = {
 - 多个智能体间彼此协作
 - 提升决策效率与服务质量
 
-### 4.3 典型场景：个人贷款申请
+### 4.7 典型场景：个人贷款申请
 
 1. 客户交互智能体：接收自然语言申请，收集基本信息
 2. 数据理解智能体：解析上传的财务文件
@@ -511,7 +509,7 @@ agent_config = {
 6. 运营执行智能体：生成合同，安排放款
 7. 编排层：协调全流程，处理异常，通知客户
 
-### 4.3 关键应用场景矩阵
+### 4.8 关键应用场景矩阵
 
 ```
 ┌──────────┬────────────────┬─────────────────────┬─────────────────┐
