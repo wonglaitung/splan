@@ -87,12 +87,14 @@ flowchart TB
         A4["信贷尽调"]
         A5["财富管理"]
         A6["投研雷达..."]
+        A1 ~~~ A2 ~~~ A3 ~~~ A4 ~~~ A5 ~~~ A6
     end
     subgraph L2["第二层：应用构建层"]
         direction LR
         B1["智能体编排平台（Dify/n8n）<br/>低代码/可视化AI应用构建<br/>适合：业务人员、快速原型、标准化场景"]
         B2["Harness SDK（代码级编排）<br/>Python/Java代码开发Agent<br/>适合：技术团队、复杂逻辑、深度定制"]
         B3["Harness Client（桌面客户端）<br/>技能可视化管理、多会话支持<br/>适合：个人办公、研发人员日常使用"]
+        B1 ~~~ B2 ~~~ B3
     end
     subgraph L3["第三层：安全入口层"]
         C["统一AI能力接入网关（Guardrails）<br/>PII脱敏 + 权限继承 + 输入输出双向护栏"]
@@ -103,6 +105,7 @@ flowchart TB
         D2["知识库<br/>向量DB"]
         D3["算力调度"]
         D4["监控告警"]
+        D1 ~~~ D2 ~~~ D3 ~~~ D4
     end
     L1 --> L2 --> L3 --> L4
 ```
