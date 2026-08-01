@@ -313,7 +313,7 @@ flowchart TB
 
 **智能体协作流程：**
 ```mermaid
-flowchart LR
+flowchart TD
     A["客户数据<br/>交易/持仓"] --> B["分析智能体<br/>需求洞察"]
     B --> C["策略智能体<br/>投资方案"]
     C --> D["合规智能体<br/>风险提示"]
@@ -335,7 +335,7 @@ flowchart LR
 **实现链路：**
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["需求预测<br/>↓<br/>客户画像智能体"] --> B["方案推荐<br/>↓<br/>推荐引擎智能体"]
     B --> C["自动办理<br/>↓<br/>流程自动化+运营执行智能体"]
     C --> D["智能服务<br/>↓<br/>对话助手智能体"]
@@ -410,7 +410,7 @@ flowchart TD
 #### 4.4.1 流程概览
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["客户申请<br/>↓<br/>自然语言交互智能体"] --> B["智能初审<br/>↓<br/>AI自动处理<br/>80%自动通过"]
     B --> C["风险评估<br/>↓<br/>AI评分+决策建议"]
     C --> D["人工审批<br/>↓<br/>高风险或大额人工审批"]
@@ -769,7 +769,7 @@ flowchart TB
 AI平台层为智能体提供模型训练、部署、管理的全生命周期能力，计划使用总行机器学习平台的MLOps流水线。
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["数据准备"] --> B["模型训练"] --> C["模型验证"] --> D["模型部署"] --> E["模型监控"]
     E -.->|"数据与模型版本控制"| A
 ```
@@ -987,7 +987,7 @@ flowchart TB
 #### 6.2.1 模型生命周期管理
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["模型开发<br/>↓<br/>公平性测试<br/>偏见检测<br/>稳健性"] --> B["模型验证<br/>↓<br/>独立验证<br/>准确性测试<br/>压力测试·场景分析"]
     B --> C["模型审批<br/>↓<br/>业务审批<br/>风险评估"]
     C --> D["模型部署<br/>↓<br/>预部署风险评估<br/>安全评估<br/>合规审查"]

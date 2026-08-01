@@ -50,7 +50,7 @@
 ### 五级成熟度定义
 
 ```mermaid
-flowchart LR
+flowchart TD
     L1["L1（试点期）"] --> L2["L2（应用期）"] --> L3["L3（流程重构期）"] --> L4["L4（规模期）"] --> L5["L5（创新期）"]
 ```
 
@@ -484,7 +484,7 @@ flowchart TB
 ### 知识库ETL管道
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["数据源<br/>↓<br/>业务系统·数据库·文档库"] --> B["数据采集<br/>↓<br/>API/爬虫·定时同步·增量同步"]
     B --> C["数据清洗<br/>↓<br/>文本处理·去重过滤·格式转换"]
     C --> D["向量化<br/>↓<br/>Embedding·模型推理·批量处理"]
@@ -526,7 +526,7 @@ flowchart TB
 ### CI/CD流水线设计
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["代码提交<br/>↓<br/>GitLab Webhook"] --> B["自动构建<br/>↓<br/>Docker Build"]
     B --> C["自动测试<br/>↓<br/>自动化测试脚本"]
     C --> D["自动部署<br/>↓<br/>Docker Compose"]
@@ -631,7 +631,7 @@ mindmap
 #### 权限继承流程
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["用户请求<br/>↓<br/>业务请求"] --> B["提取用户身份<br/>↓<br/>Token解析"]
     B --> C["查询IAM权限<br/>↓<br/>调用IAM API"]
     C --> D["注入权限标签<br/>↓<br/>标签注入"]
@@ -1487,7 +1487,7 @@ flowchart LR
         S["安全合规<br/>安全评审<br/>合规审批<br/>风险监控"]
     end
     B <--> A <--> S
-    F["协作流程<br/>1.需求提交 → 2.需求评审 → 3.安全评审 → 4.开发实施 → 5.测试验收 → 6.上线发布 → 7.运维保障"]
+    F["协作流程<br/>1.需求提交 → 2.需求评审 → 3.安全评审 →<br/>4.开发实施 → 5.测试验收 →<br/>6.上线发布 → 7.运维保障"]
 ```
 
 ---
