@@ -80,9 +80,16 @@ flowchart TD
 ```mermaid
 flowchart TB
     subgraph L1["第一层：业务应用层"]
-        A["研发助手 · 制度百事通 · 智能客服 · 信贷尽调 · 财富管理 · 投研雷达..."]
+        direction LR
+        A1["研发助手"]
+        A2["制度百事通"]
+        A3["智能客服"]
+        A4["信贷尽调"]
+        A5["财富管理"]
+        A6["投研雷达..."]
     end
     subgraph L2["第二层：应用构建层"]
+        direction LR
         B1["智能体编排平台（Dify/n8n）<br/>低代码/可视化AI应用构建<br/>适合：业务人员、快速原型、标准化场景"]
         B2["Harness SDK（代码级编排）<br/>Python/Java代码开发Agent<br/>适合：技术团队、复杂逻辑、深度定制"]
         B3["Harness Client（桌面客户端）<br/>技能可视化管理、多会话支持<br/>适合：个人办公、研发人员日常使用"]
@@ -91,7 +98,11 @@ flowchart TB
         C["统一AI能力接入网关（Guardrails）<br/>PII脱敏 + 权限继承 + 输入输出双向护栏"]
     end
     subgraph L4["第四层：基础设施层"]
-        D["推理引擎（vLLM） · 知识库（向量DB） · 算力调度 · 监控告警"]
+        direction LR
+        D1["推理引擎<br/>vLLM/SGLang"]
+        D2["知识库<br/>向量DB"]
+        D3["算力调度"]
+        D4["监控告警"]
     end
     L1 --> L2 --> L3 --> L4
 ```
