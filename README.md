@@ -14,9 +14,9 @@ flowchart TB
         direction TB
         subgraph DOCS["三份技术说明书"]
             direction LR
-            SEC["安全入口层<br/>接入网关技术说明书<br/>PII脱敏 · 双向护栏<br/>权限继承 · 审计日志"]
+            SEC["安全入口层<br/>接入网关技术说明书<br/>PII脱敏 · 双向护栏<br/>权限继承 · 审计日志<br/>智能路由 · 复杂→DS / 简单→Qwen"]
             BUILD["应用构建层<br/>Harness SDK 技术说明书<br/>Agent构建 · 技能驱动<br/>多Agent · Client"]
-            APP["应用层<br/>研发智能助手技术说明书<br/>MCP文档 · Claude · Code集成"]
+            APP["应用层<br/>研发智能助手技术说明书<br/>MCP文档 · OpenCode 实际部署 · Claude Code 能力对照<br/>全过程治理（流程门禁 · 理解确认 · 提效度量）"]
             SEC ~~~ BUILD ~~~ APP
         end
         ORCH["智能体编排平台（Dify/n8n）<br/>低代码AI应用构建、工作流API开放"]
@@ -34,7 +34,7 @@ flowchart TB
 | [3. 银行大模型接入网关技术说明书.md](3.%20银行大模型接入网关技术说明书.md) | 安全入口层 - 统一网关、PII脱敏、双向护栏 | "底层集约建设、技术硬核控险" |
 | [4. 银行智能体编排平台技术说明书.md](4.%20银行智能体编排平台技术说明书.md) | 应用构建层 - Dify低代码构建、工作流API开放、RAG知识库 | "上层乐高组装"、L1-L3场景 |
 | [5. 银行智能体开发框架技术说明书.md](5.%20银行智能体开发框架技术说明书.md) | 应用构建层 - Agent构建、技能驱动、多智能体协同 | "上层乐高组装"、L3-L5演进路径 |
-| [6. 银行研发智能助手技术说明书.md](6.%20银行研发智能助手技术说明书.md) | 应用层 - Claude Code + MCP 内网文档检索 | Run领域场景A、L1/L2阶段验证 |
+| [6. 银行研发智能助手技术说明书.md](6.%20银行研发智能助手技术说明书.md) | 应用层 - OpenCode + MCP 内网文档检索，全过程治理（流程门禁、理解确认、提效度量） | Run领域场景A、L1/L2阶段验证 |
 
 ## 技术栈对应关系
 
@@ -42,6 +42,7 @@ flowchart TB
 规划书技术要求              技术说明书对应章节
 ────────────────────────────────────────────────────
 底层集约建设         →     接入网关说明书 · 算力调度
+                          接入网关说明书 · 智能路由层（快路径规则 + Qwen3.5-0.8B 兜底分类）
                           Harness说明书 · LLMClient
                           智能体编排平台 · 工作流API开放
 
@@ -53,6 +54,7 @@ flowchart TB
                           Harness说明书 · Guardrails Hook
 
 L1/L2 单点验证       →     研发助手说明书 · Context7
+                          研发助手说明书 · 全过程治理（opencode-session-mgmt）
                           Harness说明书 · Client
                           智能体编排平台 · RAG知识库问答
 
@@ -68,7 +70,7 @@ L4/L5 多Agent协同    →     Harness说明书 · 多智能体编排
 
 | 规划书场景 | 推荐技术 | 关键技术组件 |
 |-----------|---------|-------------|
-| **场景A：研发智能助手** | Harness Client | Context7 MCP Server + Claude Code |
+| **场景A：研发智能助手** | Harness Client + OpenCode | Context7 MCP Server + OpenCode + opencode-session-mgmt 全过程治理 |
 | **场景B：制度百事通** | 智能体编排平台 | Dify工作流 + 知识库RAG + REST API |
 | **场景B：智能客服** | 智能体编排平台 | Dify Chatflow + Guardrails护栏 |
 | **场景A：信贷尽调助理** | 智能体编排平台 | Dify工作流 + 数据中台API对接 |
@@ -121,6 +123,12 @@ context7/                      → 研发助手说明书
 ├── MCP Server                 → 内网技术手册检索
 ├── 智能切片                   → 文档处理策略
 ├── ChromaDB                   → 知识库存储
+
+opencode-session-mgmt/         → 研发助手说明书 · 全过程治理
+├── packages/plugin            → 流程门禁、理解确认、提交门禁
+├── packages/cli               → opencode-sm 独立 CLI
+├── packages/collector         → org 收集服务（聚合统计）
+└── packages/shared            → 共享契约（WorkflowState）
 ```
 
 ## 文档阅读顺序建议
@@ -174,7 +182,7 @@ context7/                      → 研发助手说明书
 | 技术架构总览 | - | 2026-06 |
 | 接入网关说明书 | guardrail v1.0 | 2026-06 |
 | 智能体编排平台说明书 | Dify v1.10.1 | 2026-06 |
-| 研发助手说明书 | context7 v1.0 | 2026-06 |
+| 研发助手说明书 | context7 v1.0 + opencode-session-mgmt | 2026-08 |
 | Harness说明书 | harness v0.1.0 | 2026-07 |
 
 ### 2026-06/07 新增功能
