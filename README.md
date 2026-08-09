@@ -171,6 +171,7 @@ opencode-session-mgmt/         → 研发助手说明书 · 全过程治理
 | **Guardrails** | https://github.com/wonglaitung/guardrails | 中文 PII 检测与脱敏护栏系统，Two-Layer Guardrail 架构 |
 | **Harness** | https://github.com/wonglaitung/harness | 银行智能体开发框架，Skill 驱动 + 多 Agent 协同 |
 | **Context7** | https://github.com/wonglaitung/context7 | MCP Server，内网技术文档检索，研发智能助手核心组件 |
+| **opencode-session-mgmt** | https://github.com/wonglaitung/opencode/tree/dev/opencode-session-mgmt | 研发智能助手全过程治理：流程门禁、理解确认、提交门禁与效能度量（插件 + CLI + org 收集服务） |
 
 ---
 
