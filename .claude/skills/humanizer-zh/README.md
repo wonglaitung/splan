@@ -41,10 +41,11 @@ git clone https://github.com/op7418/Humanizer-zh.git ~/.claude/skills/humanizer-
    - **Windows**: `%USERPROFILE%\.claude\skills\`
 
 3. 确保文件夹结构如下：
-   ```
-   ~/.claude/skills/humanizer-zh/
-   ├── SKILL.md       # 技能定义文件（中文版）
-   └── README.md      # 说明文档
+   ```mermaid
+   flowchart TD
+       ROOT["~/.claude/skills/humanizer-zh/"]
+       ROOT --> SKILL["SKILL.md · 技能定义文件（中文版）"]
+       ROOT --> READ["README.md · 说明文档"]
    ```
 
 ### 验证安装
