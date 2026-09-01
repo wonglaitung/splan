@@ -16,7 +16,7 @@ flowchart TB
         USE["应用层<br/>研发智能助手技术说明书<br/>· MCP文档 · OpenCode 集成"]
     end
     ORCH["智能体编排平台（Dify/n8n）<br/>低代码AI应用构建 · 工作流API开放"]
-    ORCH -.->|支撑| FR
+    ORCH -.->|"支撑"| FR
     PLAN -.->|"↓"| SPECS
 ```
 
