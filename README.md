@@ -13,7 +13,7 @@ flowchart TB
         direction LR
         GW["安全入口层<br/>接入网关技术说明书<br/>· PII脱敏 · 双向护栏<br/>· 权限继承 · 审计日志"]
         FR["应用构建层<br/>Harness SDK 技术说明书<br/>· Agent构建 · 技能驱动<br/>· 多Agent · Client"]
-        USE["应用层<br/>研发智能助手技术说明书<br/>· MCP文档 · Claude · Code集成"]
+        USE["应用层<br/>研发智能助手技术说明书<br/>· MCP文档 · OpenCode 集成"]
     end
     ORCH["智能体编排平台（Dify/n8n）<br/>低代码AI应用构建 · 工作流API开放"]
     ORCH -.->|支撑| FR
@@ -31,7 +31,7 @@ flowchart TB
 | [3. 银行大模型接入网关技术说明书.md](3.%20银行大模型接入网关技术说明书.md) | 安全入口层 - 统一网关、PII脱敏、双向护栏 | "底层集约建设、技术硬核控险" |
 | [4. 银行智能体编排平台技术说明书.md](4.%20银行智能体编排平台技术说明书.md) | 应用构建层 - Dify低代码构建、工作流API开放、RAG知识库 | "上层乐高组装"、L1-L3场景 |
 | [5. 银行智能体开发框架技术说明书.md](5.%20银行智能体开发框架技术说明书.md) | 应用构建层 - Agent构建、技能驱动、多智能体协同 | "上层乐高组装"、L3-L5演进路径 |
-| [6. 银行研发智能助手技术说明书.md](6.%20银行研发智能助手技术说明书.md) | 应用层 - Claude Code + MCP 内网文档检索 | Run领域场景A、L1/L2阶段验证 |
+| [6. 银行研发智能助手技术说明书.md](6.%20银行研发智能助手技术说明书.md) | 应用层 - OpenCode + MCP 内网文档检索 | Run领域场景A、L1/L2阶段验证 |
 
 ## 技术栈对应关系
 
@@ -62,7 +62,7 @@ flowchart LR
 
 | 规划书场景 | 推荐技术 | 关键技术组件 |
 |-----------|---------|-------------|
-| **场景A：研发智能助手** | Harness Client | Context7 MCP Server + Claude Code |
+| **场景A：研发智能助手** | Harness Client | Context7 MCP Server + OpenCode |
 | **场景B：制度百事通** | 智能体编排平台 | Dify工作流 + 知识库RAG + REST API |
 | **场景B：智能客服** | 智能体编排平台 | Dify Chatflow + Guardrails护栏 |
 | **场景A：信贷尽调助理** | 智能体编排平台 | Dify工作流 + 数据中台API对接 |

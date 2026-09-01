@@ -29,28 +29,28 @@ npx skills add https://github.com/op7418/Humanizer-zh.git
 ### 方法二：通过 Git 克隆
 
 ```bash
-# 克隆到 Claude Code 的 skills 目录
-git clone https://github.com/op7418/Humanizer-zh.git ~/.claude/skills/humanizer-zh
+# 克隆到 OpenCode 的 skills 目录
+git clone https://github.com/op7418/Humanizer-zh.git ~/.opencode/skills/humanizer-zh
 ```
 
 ### 方法三：手动安装
 
 1. 下载本项目的 ZIP 文件或克隆到本地
-2. 将 `Humanizer-zh` 文件夹复制到 Claude Code 的 skills 目录：
-   - **macOS/Linux**: `~/.claude/skills/`
-   - **Windows**: `%USERPROFILE%\.claude\skills\`
+2. 将 `Humanizer-zh` 文件夹复制到 OpenCode 的 skills 目录：
+    - **macOS/Linux**: `~/.opencode/skills/`
+    - **Windows**: `%USERPROFILE%\.opencode\skills\`
 
 3. 确保文件夹结构如下：
    ```mermaid
    flowchart TD
-       ROOT["~/.claude/skills/humanizer-zh/"]
+        ROOT["~/.opencode/skills/humanizer-zh/"]
        ROOT --> SKILL["SKILL.md · 技能定义文件（中文版）"]
        ROOT --> READ["README.md · 说明文档"]
    ```
 
 ### 验证安装
 
-重启 Claude Code 或重新加载 skills 后，在对话中输入：
+重启 OpenCode 或重新加载 skills 后，在对话中输入：
 
 ```
 /humanizer-zh
@@ -62,7 +62,7 @@ git clone https://github.com/op7418/Humanizer-zh.git ~/.claude/skills/humanizer-
 
 ### 基础用法
 
-在 Claude Code 中，你可以通过以下方式使用 Humanizer：
+在 OpenCode 中，你可以通过以下方式使用 Humanizer：
 
 #### 1. 直接调用技能
 

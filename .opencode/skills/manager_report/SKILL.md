@@ -20,7 +20,7 @@ metadata:
 
 ## 前置依赖
 
-本技能继承 `.claude/skills/humanizer-zh` 的去 AI 化规则。
+本技能继承 `.opencode/skills/humanizer-zh` 的去 AI 化规则。
 应用本技能时，应同时遵循 humanizer-zh 的核心原则：
 删除填充短语、打破公式结构、信任读者、删除金句。
 
