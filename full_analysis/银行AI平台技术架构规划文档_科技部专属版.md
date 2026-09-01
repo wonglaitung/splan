@@ -488,7 +488,7 @@ flowchart TB
 ### 知识库ETL管道
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["数据源"] --> B["数据采集"] --> C["数据清洗"] --> D["向量化"] --> E["向量存储"] --> F["更新索引"]
     A --> A1["业务系统<br/>数据库<br/>文档库"]
     B --> B1["API/爬虫<br/>定时同步<br/>增量同步"]
@@ -532,7 +532,7 @@ flowchart TB
 ### CI/CD流水线设计
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["代码提交"] --> B["自动构建"] --> C["自动测试"] --> D["自动部署"] --> E["灰度发布"]
     A --> A1["GitLab<br/>Webhook"]
     B --> B1["Docker<br/>Build"]
@@ -591,7 +591,7 @@ flowchart TB
 #### PII识别器配置
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["PII识别器配置（12+类）"]
     ROOT --> A["手机号识别器"]
     A --> A1["中国大陆手机号：1[3-9]\d{9}"]
@@ -649,7 +649,7 @@ flowchart LR
 #### 技术实现
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["权限继承实现方案"]
     ROOT --> A["与行内IAM系统对接"]
     A --> A1["OAuth 2.0认证"]
@@ -679,7 +679,7 @@ flowchart LR
 #### Layer 1规则检测
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["输入检测规则"]
     ROOT --> A["敏感词检测"]
     A --> A1["政治敏感词库"]
@@ -698,7 +698,7 @@ flowchart LR
 #### Layer 2 LLM Judge
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["意图检测流程"]
     ROOT --> A["模型加载"]
     A --> A1["Qwen3Guard-8B-Stream"]
@@ -718,7 +718,7 @@ flowchart LR
 #### 输出过滤
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["输出检测机制"]
     ROOT --> A["幻觉检测"]
     A --> A1["事实一致性验证"]
@@ -741,7 +741,7 @@ flowchart LR
 #### 核心组件
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["Presidio核心组件"]
     ROOT --> A["AnalyzerEngine（分析引擎）"]
     A --> A1["预置识别器（15+种）"]
@@ -848,7 +848,7 @@ def search_with_permission(query, user_permissions):
 #### 权限标签设计
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["知识库文档标签"]
     ROOT --> A["部门标签"]
     A --> A1["dept:credit（信贷部可见）"]
@@ -936,7 +936,7 @@ flowchart TB
 ### 选型决策树
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["应用构建需求"]
     ROOT --> Q1{"需要快速交付、标准化场景？"}
     Q1 -->|"是"| A1["智能体编排平台（Dify）"]
@@ -1181,7 +1181,7 @@ flowchart TB
 #### 阶段一：影子运行期（Month 1-2）
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["现有应用"] ==> Z["现有业务持续运行"]
     A --> B["新平台（影子模式）<br/>• 流量镜像测试<br/>• 性能对比验证<br/>• 不影响现有业务"]
 ```
@@ -1195,7 +1195,7 @@ flowchart LR
 #### 阶段二：灰度切换期（Month 3-4）
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["现有应用"] --> P90["90%流量"]
     A --> B["新平台<br/>• A/B测试验证<br/>• 用户反馈收集<br/>• 问题修复优化"]
     B --> P10["10%流量"]
@@ -1211,7 +1211,7 @@ flowchart LR
 #### 阶段三：全面迁移期（Month 5-6）
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["现有应用"] --> OFF["下线"]
     A --> B["新平台<br/>• 全面切换<br/>• 旧系统下线<br/>• 知识转移培训"]
     B --> P100["100%流量"]
@@ -1247,7 +1247,7 @@ flowchart LR
 ### 成本构成分析
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["总成本结构"]
     ROOT --> A["硬件成本（53%）"]
     A --> A1["GPU服务器：¥360-480万"]
@@ -1283,7 +1283,7 @@ flowchart LR
 #### 技术风险应对
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["技术风险应对流程"]
     ROOT --> A["预防阶段"]
     A --> A1["技术选型POC验证"]
@@ -1302,7 +1302,7 @@ flowchart LR
 #### 安全风险应对
 
 ```mermaid
-flowchart LR
+flowchart TB
     ROOT["安全风险应对流程"]
     ROOT --> A["预防阶段"]
     A --> A1["安全培训"]

@@ -36,7 +36,7 @@ flowchart TB
 ## 技术栈对应关系
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["底层集约建设"] --> A1["接入网关 · 算力调度"]
     A --> A2["Harness · LLMClient"]
     A --> A3["编排平台 · 工作流API开放"]
