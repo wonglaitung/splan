@@ -674,9 +674,9 @@ flowchart TB
 固定流程的硬编码调用链，基于Spring Cloud实现。
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph SC["Spring Cloud 编排层"]
-        direction TB
+        direction LR
         G["Gateway<br/>(路由)"]
         E["Eureka<br/>(服务发现)"]
         CF["Config<br/>(配置中心)"]
