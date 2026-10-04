@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schema/audit-log.schema.json",
+  "title": "AI 审计日志字段规范",
+  "description": "关键操作（模型发布、数据访问、回滚、脱敏批处理）的审计日志结构。字段不可篡改，写入 WORM 存储，保留 >= 180 天。",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "actor",
+    "action",
+    "resource",
+    "input_hash",
+    "output_hash",
+    "model_version",
+    "result"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "全局唯一事件 ID（UUID）"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "操作发生时间（ISO 8601, UTC）"
+    },
+    "actor": {
+      "type": "object",
+      "description": "操作者身份",
+      "required": ["user_id", "role", "ip"],
+      "properties": {
+        "user_id": { "type": "string", "description": "操作者用户标识（去标识后）" },
+        "role": { "type": "string", "description": "RBAC 角色" },
+        "ip": { "type": "string", "description": "来源 IP" }
+      }
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "model_publish",
+        "model_rollback",
+        "data_access",
+        "data_desensitize",
+        "data_delete",
+        "prompt_change",
+        "redteam_run",
+        "config_change"
+      ]
+    },
+    "resource": {
+      "type": "string",
+      "description": "被操作对象（模型名/数据集名/配置路径）"
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "输入内容 SHA-256（脱敏后计算）"
+    },
+    "output_hash": {
+      "type": "string",
+      "description": "输出内容 SHA-256（脱敏后计算）"
+    },
+    "model_version": {
+      "type": "string",
+      "description": "模型版本标识（含 base 校验哈希）"
+    },
+    "seed": {
+      "type": "integer",
+      "description": "随机种子（复现用）"
+    },
+    "result": {
+      "type": "string",
+      "enum": ["success", "failure", "blocked", "rolled_back"]
+    },
+    "approver": {
+      "type": "string",
+      "description": "四眼双签审批人（第二签名）"
+    },
+    "raw_log_ref": {
+      "type": "string",
+      "description": "原始日志归档路径（WORM）"
+    }
+  }
+}

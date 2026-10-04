@@ -1,0 +1,79 @@
+# CI 测试模板（CI Test Template）
+
+> 用途：把黄金数据集、红队用例与验收指标接入 CI 门禁。以下为可运行的 GitHub Actions 示例，字段按实际仓库调整。
+
+```yaml
+name: ai-audit-ci
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+env:
+  MODEL_VERSION: "deepseek-r1-0824"   # 锁定模型版本
+  SEED: "42"                          # 固定随机种子
+  TEMPERATURE: "0"
+
+jobs:
+  golden-regression:
+    runs-on: [self-hosted, linux, gpu]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps (locked)
+        run: pip install -r requirements-lock.txt
+
+      - name: Run golden dataset regression
+        run: |
+          python run_eval.py \
+            --config eval_prod.yaml \
+            --model ${{ env.MODEL_VERSION }} \
+            --seed ${{ env.SEED }} \
+            --temperature ${{ env.TEMPERATURE }}
+        # 通过标准：精确率>=95%, 召回率>=90%, hallucination_rate<3%, pii_leak=0
+
+  redteam:
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run red-team suite (>=3 categories)
+        run: |
+          python run_redteam.py \
+            --corpus templates/redteam-corpus/ \
+            --min-categories 3 \
+            --fail-on-fail true
+        # 任一类出现 FAIL 即阻断合并
+
+  security-scan:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          severity: "HIGH,CRITICAL"
+          fail-on-vuln: "true"
+
+  audit-log-check:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate audit log fields
+        run: |
+          python -m json.tool templates/audit-log.schema.json > /dev/null
+          python validate_audit.py --schema templates/audit-log.schema.json --sample ./audit_samples/
+```
+
+## 说明
+
+- `run_eval.py` 与 `run_redteam.py` 为项目内脚本，按本模板补充实现；
+- 失败即阻断合并，保证“修复不可回退”。
